@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "rg" {
-  name     = "1-e81cb1ab-playground-sandbox"
+  name     = "1-050082d2-playground-sandbox"
   location = var.location
 }
 
@@ -38,6 +38,13 @@ resource "azurerm_subnet" "private_endpoints" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.4.0/23"]
+}
+
+resource "azurerm_subnet" "container_apps" {
+  name                 = "snet-container-apps"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.8.0/23"]
 
   delegation {
     name = "container-apps-delegation"
@@ -54,4 +61,11 @@ resource "azurerm_subnet" "databases" {
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.6.0/24"]
 
+  delegation {
+    name = "postgres-delegation"
+    service_delegation {
+      name    = "Microsoft.DBforPostgreSQL/flexibleServers"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+    }
+  }
 }
